@@ -1,0 +1,98 @@
+---
+title: "p8105_hw2_ars2376"
+output: github_document
+date: "2025-09-26"
+---
+
+```{r setup}
+library(tidyverse)
+```
+
+# Problem 1
+
+Cleaning data from pols-month.csv
+
+```{r}
+pols_df =
+  read_csv("fivethirtyeight_datasets/pols-month.csv", na = c("NA", ".", "")) |> 
+  separate(
+    mon, into = c("year", "month", "day"), sep = "-") |> 
+ mutate(
+      month = case_match(
+        month, 
+        "01" ~ "Jan",
+        "02" ~ "Feb",
+        "03" ~ "Mar",
+        "04" ~ "Apr",
+        "05" ~ "May",
+        "06" ~ "Jun",
+        "07" ~ "Jul",
+        "08" ~ "Aug",
+        "09" ~ "Sep",
+        "10" ~ "Oct",
+        "11" ~ "Nov",
+        "12" ~"Dec")) |> 
+  
+  mutate(prez = case_when(
+    prez_gop == 1 ~ "gop",
+    prez_dem == 1 ~ "dem") 
+) |> 
+   select(-prez_dem, -prez_gop, -day)
+```
+
+```{r}
+pols_df
+```
+
+Clean data from snp.csv
+
+```{r}
+snp_df =
+  read.csv("fivethirtyeight_datasets/snp.csv", na = c("NA", ".", "")) |>
+  separate(
+    date, into = c("month", "day", "year"), sep = "/") |> 
+ mutate(
+      month = case_match(
+        month, 
+        "1" ~ "Jan",
+        "2" ~ "Feb",
+        "3" ~ "Mar",
+        "4" ~ "Apr",
+        "5" ~ "May",
+        "6" ~ "Jun",
+        "7" ~ "Jul",
+        "8" ~ "Aug",
+        "9" ~ "Sep",
+        "10" ~ "Oct",
+        "11" ~ "Nov",
+        "12" ~"Dec")) |> 
+  relocate(year,month)
+```
+
+```{r}
+snp_df$year <- as.numeric(snp_df$year)
+```
+
+Change year variable to include 19 or 20
+
+```{r}
+snp_df <- mutate(snp_df, year = case_when(
+  nchar(year) == 2 & as.numeric(year) > 0 & as.numeric(year) <= 15 ~ paste0("20", year),
+  nchar(year) == 1 & as.numeric(year) > 0 & as.numeric(year) <= 15 ~ paste0("200", year),
+  nchar(year) == 2 & as.numeric(year) > 49 ~ paste0("19", year),
+  TRUE ~ as.character(year)
+))
+```
+
+Tidy unemployment.csv for merging
+
+```{r}
+unemp_df =
+  read.csv("fivethirtyeight_datasets/unemployment.csv", na = c("NA", ".", "")) |> 
+  pivot_longer(
+    cols = Jan:Dec,
+    names_to = "month",
+    values_to = "unemp_pct"
+  ) |> 
+  janitor::clean_names() ## Changed Year to year
+```
