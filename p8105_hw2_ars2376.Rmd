@@ -84,6 +84,11 @@ snp_df <- mutate(snp_df, year = case_when(
 ))
 ```
 
+```{r}
+snp_df
+```
+
+
 Tidy unemployment.csv for merging
 
 ```{r}
@@ -94,5 +99,33 @@ unemp_df =
     names_to = "month",
     values_to = "unemp_pct"
   ) |> 
-  janitor::clean_names() ## Changed Year to year
+  janitor::clean_names() |>  ## Changed Year to year
+  mutate(year = as.character(year))
 ```
+
+```{r}
+unemp_df
+```
+
+Merge snp into pols
+
+```{r}
+pols_snp_df = 
+  left_join(pols_df, snp_df, by = c("year","month"))
+```
+
+```{r}
+pols_snp_df
+```
+
+Merge unemp into pols_snp
+
+```{r}
+final_df =
+  left_join(pols_snp_df, unemp_df, by = c("year", "month"))
+```
+
+```{r}
+final_df
+```
+
