@@ -6,6 +6,7 @@ date: "2025-09-26"
 
 ```{r setup}
 library(tidyverse)
+library(readxl)
 ```
 
 # Problem 1
@@ -88,7 +89,6 @@ snp_df <- mutate(snp_df, year = case_when(
 snp_df
 ```
 
-
 Tidy unemployment.csv for merging
 
 ```{r}
@@ -132,3 +132,46 @@ final_df
 Write-up
 
 One of the datasets used is the `pols-month` dataset, which describes the number of national politicians who are Democratic or Republican at any given time. Some key variables include date of the count, whether the president was Democratic or Republic on the associated date, number of Republican governors, number of Republican senators, number of Republican representatives, number of Democratic governors, number of Democratic senators, and number of Democratic representatives. The `snp` dataset describes the closing values of the Standard & Poor stock market index for a set of dates. The `unemployment` dataset measures the percentage of unemployment. The `final_df` contains 822 observations of 12 variables and the date ranges from 1947 to 2015.
+
+## Problem 2
+
+Clean data for Mr. Trash Wheel
+
+```{r}
+trashwh_df =
+  read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", na = c("NA", ".", ""), skip = 1, col_names = TRUE) |>
+  janitor::clean_names() |> 
+  head(651) |>  ## Omits last 2 rows
+  mutate(sports_balls = as.integer(round(sports_balls)))
+```
+
+```{r}
+trashwh_df
+```
+
+Clean data for Professor Trash Wheel
+
+```{r}
+proftrashwh_df =
+  read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", na = c("NA", ".", ""), skip = 1, col_names = TRUE) |>
+  janitor::clean_names() |> 
+  head(118)  ## Omits last 3 rows
+```
+
+```{r}
+proftrashwh_df
+```
+
+Clean data for Gwynnda
+
+```{r}
+gwynnda_df =
+  read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", na = c("NA", ".", ""), skip = 1, col_names = TRUE) |>
+  janitor::clean_names() |> 
+  head(263)  ## Omits last row
+```
+
+```{r}
+gwynnda_df
+```
+
