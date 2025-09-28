@@ -78,7 +78,7 @@ Change year variable to include 19 or 20
 ```{r}
 snp_df <- mutate(snp_df, year = case_when(
   nchar(year) == 2 & as.numeric(year) > 0 & as.numeric(year) <= 15 ~ paste0("20", year),
-  nchar(year) == 1 & as.numeric(year) > 0 & as.numeric(year) <= 15 ~ paste0("200", year),
+  nchar(year) == 1 & as.numeric(year) >= 0 & as.numeric(year) <= 15 ~ paste0("200", year),
   nchar(year) == 2 & as.numeric(year) > 49 ~ paste0("19", year),
   TRUE ~ as.character(year)
 ))
@@ -129,3 +129,6 @@ final_df =
 final_df
 ```
 
+Write-up
+
+One of the datasets used is the `pols-month` dataset, which describes the number of national politicians who are Democratic or Republican at any given time. Some key variables include date of the count, whether the president was Democratic or Republic on the associated date, number of Republican governors, number of Republican senators, number of Republican representatives, number of Democratic governors, number of Democratic senators, and number of Democratic representatives. The `snp` dataset describes the closing values of the Standard & Poor stock market index for a set of dates. The `unemployment` dataset measures the percentage of unemployment. The `final_df` contains 822 observations of 12 variables and the date ranges from 1947 to 2015.
