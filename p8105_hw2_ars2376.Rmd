@@ -142,7 +142,10 @@ trashwh_df =
   read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", na = c("NA", ".", ""), skip = 1, col_names = TRUE) |>
   janitor::clean_names() |> 
   head(651) |>  ## Omits last 2 rows
-  mutate(sports_balls = as.integer(round(sports_balls)))
+  mutate(sports_balls = as.integer(round(sports_balls))) |> 
+  mutate(year = as.numeric(year)) |> 
+  mutate(name = "Mr. Trash Wheel") |> 
+  relocate(name)
 ```
 
 ```{r}
@@ -155,7 +158,9 @@ Clean data for Professor Trash Wheel
 proftrashwh_df =
   read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", na = c("NA", ".", ""), skip = 1, col_names = TRUE) |>
   janitor::clean_names() |> 
-  head(118)  ## Omits last 3 rows
+  head(118) |> ## Omits last 3 rows
+  mutate(name = "Professor Trash Wheel") |> 
+  relocate(name)
 ```
 
 ```{r}
@@ -168,10 +173,24 @@ Clean data for Gwynnda
 gwynnda_df =
   read_excel("202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", na = c("NA", ".", ""), skip = 1, col_names = TRUE) |>
   janitor::clean_names() |> 
-  head(263)  ## Omits last row
+  head(263) |>  ## Omits last row
+  mutate(name = "Gwynnda Trash Wheel") |> 
+  relocate(name)
 ```
 
 ```{r}
 gwynnda_df
+```
+
+Merge datasets
+
+```{r}
+alltrash_df = 
+  bind_rows(trashwh_df, proftrashwh_df, gwynnda_df)
+```
+
+
+```{r}
+alltrash_df
 ```
 
