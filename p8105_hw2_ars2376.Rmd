@@ -7,6 +7,7 @@ date: "2025-09-26"
 ```{r setup}
 library(tidyverse)
 library(readxl)
+library(dplyr)
 ```
 
 # Problem 1
@@ -38,10 +39,12 @@ pols_df =
     prez_gop == 1 ~ "gop",
     prez_dem == 1 ~ "dem") 
 ) |> 
-   select(-prez_dem, -prez_gop, -day)
+   select(-prez_dem, -prez_gop, -day) 
 ```
 
 ```{r}
+pols_df <- pols_df |> 
+  mutate(year = as.numeric(year))
 pols_df
 ```
 
@@ -67,11 +70,8 @@ snp_df =
         "10" ~ "Oct",
         "11" ~ "Nov",
         "12" ~"Dec")) |> 
-  relocate(year,month)
-```
-
-```{r}
-snp_df$year <- as.numeric(snp_df$year)
+  relocate(year,month) |> 
+  select(-day)
 ```
 
 Change year variable to include 19 or 20
@@ -99,17 +99,25 @@ unemp_df =
     names_to = "month",
     values_to = "unemp_pct"
   ) |> 
-  janitor::clean_names() |>  ## Changed Year to year
-  mutate(year = as.character(year))
+  janitor::clean_names() ## Changed Year to year
 ```
 
 ```{r}
+unemp_df <- unemp_df |> 
+  mutate(year = as.numeric(year))
+
 unemp_df
 ```
 
 Merge snp into pols
 
 ```{r}
+pols_df <- pols_df |> 
+  mutate(year = as.numeric(year))
+
+snp_df <- snp_df |> 
+  mutate(year = as.numeric(year))
+
 pols_snp_df = 
   left_join(pols_df, snp_df, by = c("year","month"))
 ```
