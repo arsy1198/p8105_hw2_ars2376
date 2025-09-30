@@ -129,7 +129,7 @@ final_df =
 final_df
 ```
 
-Write-up
+### Write-up
 
 One of the datasets used is the `pols-month` dataset, which describes the number of national politicians who are Democratic or Republican at any given time. Some key variables include date of the count, whether the president was Democratic or Republic on the associated date, number of Republican governors, number of Republican senators, number of Republican representatives, number of Democratic governors, number of Democratic senators, and number of Democratic representatives. The `snp` dataset describes the closing values of the Standard & Poor stock market index for a set of dates. The `unemployment` dataset measures the percentage of unemployment. The `final_df` contains 822 observations of 12 variables and the date ranges from 1947 to 2015.
 
@@ -194,7 +194,86 @@ alltrash_df =
 alltrash_df
 ```
 
-Write-up
+### Write-up
 
 These data represents three water-wheel vessels that removes trash in harbors around Baltimore, Maryland. The three vessels are Mr. Trash Wheel, Professor Trash Wheel, and Gwynnda. In total, there are `1,032` observations, and some key variables include `name` of the vessel, `date` of collection, `weight_tons`, `volume_cubic_yards`, litter type such as `plastic_bottles`, `cigarette_butts`, and `plastic_bags`, and `homes_powered`. The total weight collected by Professor Trash Wheel is `r alltrash_df |> filter(name == "Mr. Trash Wheel") |> summarize(total = sum(weight_tons, na.rm = TRUE)) |> pull(total)` tons. The total number of cigarette butts collected by Gwynnda in June of 2022 was `r alltrash_df |> filter(name == "Gwynnda Trash Wheel" & month == "June" & year == "2022") |> summarize(total=sum(cigarette_butts, na.rm = TRUE)) |> pull(total) |> format(scientific = FALSE)`.
+
+## Problem 3
+
+Clean Zillow datasets
+
+```{r}
+zipcode_df = 
+  read_csv("zillow_data/Zip Codes.csv", na = c("NA", ".", ""), col_names = TRUE) |> 
+  janitor::clean_names() |> 
+  distinct() ## Gets unique rows
+```
+
+```{r}
+zori_df =
+  read_csv("zillow_data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv", na = c("NA", ".", ""), col_names = TRUE) |> 
+  janitor::clean_names() |> 
+  rename(zip_code = region_name) |> 
+  pivot_longer(
+    cols = x2015_01_31:x2024_08_31,
+    names_to = "date_recorded",
+    values_to = "zori",
+    names_prefix = "x" 
+  ) |> 
+  mutate(date_recorded = str_replace_all(date_recorded, "_", "-")) |> 
+  separate(
+    date_recorded, into = c("year", "month", "day"), sep = "-") |> 
+  distinct() ## Gets unique rows
+```
+
+Merge datasets
+
+```{r}
+zorimerged_df =
+  left_join(zori_df, zipcode_df, by = c("zip_code"), relationship = "many-to-many") |> 
+  select(-size_rank, -region_type, -county_name, -state_name, -metro, -state_fips, -file_date) |> 
+  relocate(neighborhood, .after = city) |> 
+  relocate(zip_code, .after = neighborhood)
+```
+
+Unique zip codes and neighborhoods
+
+```{r}
+length(unique(zorimerged_df$zip_code[!is.na(zorimerged_df$zip_code)]))
+length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))
+```
+
+### Write up
+
+The resulting dataset has `17,516` observations. There are `r length(unique(zorimerged_df$zip_code[!is.na(zorimerged_df$zip_code)]))` unique zip codes and `r length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))` neighborhoods.
+
+Rental prices in January 2020 vs January 2021
+
+```{r}
+drop_df =
+  zorimerged_df |> 
+  select(state, city, neighborhood, zip_code, year, month, zori, county) |> 
+  filter(month == "01", year == "2020" | year == "2021") |> 
+  pivot_wider(
+    names_from = "year",
+    values_from = "zori"
+    ) |> 
+  rename(before_covid = "2020",
+         after_covid = "2021") |> 
+  mutate(drop_price = before_covid - after_covid)
+```
+
+10 zip codes with largest drop in rental price from January 2020 to January 2021
+
+```{r}
+top_10 = drop_df |> 
+  filter(!is.na(drop_price)) |> ## excludes na values in drop_price
+  filter(!is.na(neighborhood)) |> ## excludes na values in neighborhood
+  arrange(desc(drop_price)) |> 
+  slice(1:10)
+```
+
+```{r}
+top_10
+```
 
