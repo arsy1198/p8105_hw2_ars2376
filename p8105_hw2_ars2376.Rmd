@@ -131,7 +131,7 @@ final_df
 
 ### Write-up
 
-One of the datasets used is the `pols-month` dataset, which describes the number of national politicians who are Democratic or Republican at any given time. Some key variables include date of the count, whether the president was Democratic or Republic on the associated date, number of Republican governors, number of Republican senators, number of Republican representatives, number of Democratic governors, number of Democratic senators, and number of Democratic representatives. The `snp` dataset describes the closing values of the Standard & Poor stock market index for a set of dates. The `unemployment` dataset measures the percentage of unemployment. The `final_df` contains 822 observations of 12 variables and the date ranges from 1947 to 2015.
+One of the datasets used is the `pols-month` dataset, which describes the number of national politicians who are Democratic or Republican at any given time. Some key variables include date of the count, whether the president was Democratic or Republic on the associated date, number of Republican governors, number of Republican senators, number of Republican representatives, number of Democratic governors, number of Democratic senators, and number of Democratic representatives. The `snp` dataset describes the closing values of the Standard & Poor stock market index for a set of dates. The `unemployment` dataset measures the percentage of unemployment. The merged dataset of all 3 `final_df` contains 822 observations of 12 variables and the date ranges from 1947 to 2015.
 
 ## Problem 2
 
@@ -245,7 +245,7 @@ length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))
 
 ### Write up
 
-The resulting dataset has `17,516` observations. There are `r length(unique(zorimerged_df$zip_code[!is.na(zorimerged_df$zip_code)]))` unique zip codes and `r length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))` neighborhoods.
+The resulting dataset has `17,516` observations. It describes the Zillow Observed Rent Index (ZORI) for `r length(unique(zorimerged_df$zip_code[!is.na(zorimerged_df$zip_code)]))` unique zip codes and `r length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))` unique neighborhoods. The dataset also includes the `year`, `month`, and `day` of when the ZORI for each observation was recorded. Other notable variables are `county` and `county_code`.
 
 Rental prices in January 2020 vs January 2021
 
@@ -270,10 +270,14 @@ top_10 = drop_df |>
   filter(!is.na(drop_price)) |> ## excludes na values in drop_price
   filter(!is.na(neighborhood)) |> ## excludes na values in neighborhood
   arrange(desc(drop_price)) |> 
-  slice(1:10)
+  slice(1:10) |> 
+  select(-state,-city)
 ```
 
 ```{r}
 top_10
 ```
 
+### Write up
+
+In January 2020, the average rental price is `r mean(drop_df$before_covid[!is.na(drop_df$before_covid)])` while the average price in January 2021 is `r mean(drop_df$after_covid[!is.na(drop_df$after_covid)])`. This shows a drop from January 2020 to January 2021. The table above further displays the 10 zip codes with the largest drop in rental price from January 2020 to January 2021 along with their respective neighborhoods. The largest drop in rental price is `r max(top_10$drop_price)` in the zip code 10007 which is associated with Lower Manhattan while the smallest drop within this list is `r min(top_10$drop_price)` in the zip code 10003 which is associated with the Lower East side. Most of largest rental price drops from January 2020 to 2021 occured in Lower Manhattan and Lower East Side.
