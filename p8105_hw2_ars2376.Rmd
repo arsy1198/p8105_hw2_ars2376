@@ -78,7 +78,7 @@ Change year variable to include 19 or 20
 
 ```{r}
 snp_df <- mutate(snp_df, year = case_when(
-  nchar(year) == 2 & as.numeric(year) > 0 & as.numeric(year) <= 15 ~ paste0("20", year),
+  nchar(year) == 2 & as.numeric(year) >= 0 & as.numeric(year) <= 15 ~ paste0("20", year),
   nchar(year) == 1 & as.numeric(year) >= 0 & as.numeric(year) <= 15 ~ paste0("200", year),
   nchar(year) == 2 & as.numeric(year) > 49 ~ paste0("19", year),
   TRUE ~ as.character(year)
@@ -244,6 +244,10 @@ zorimerged_df =
   relocate(zip_code, .after = neighborhood)
 ```
 
+```{r}
+zorimerged_df
+```
+
 Unique zip codes and neighborhoods
 
 ```{r}
@@ -254,6 +258,14 @@ length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))
 ### Write up
 
 The resulting dataset has `17,516` observations. It describes the Zillow Observed Rent Index (ZORI) for `r length(unique(zorimerged_df$zip_code[!is.na(zorimerged_df$zip_code)]))` unique zip codes and `r length(unique(zorimerged_df$neighborhood[!is.na(zorimerged_df$neighborhood)]))` unique neighborhoods. The dataset also includes the `year`, `month`, and `day` of when the ZORI for each observation was recorded. Other notable variables are `county` and `county_code`.
+
+```{r}
+unique_zip <- anti_join(zipcode_df, zori_df, by = "zip_code")
+
+unique_zip
+```
+
+There are 171 zip codes that are in the zip code dataset but not in the Zillow Rental Price dataset. This is due to some zip codes being used for businesses, P.O. boxes, specific buildings such as the Empire State Buildings, and other non-residential buildings that Zillow would not have rental listings for. Additionally, many zip codes are associated with neighborhoods listed as NA which lie outside of NYC and in NYS. Thus the Zillow Rental Price dataset that focuses on NYC would not have these zip codes either.
 
 Rental prices in January 2020 vs January 2021
 
